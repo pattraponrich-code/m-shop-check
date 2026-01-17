@@ -1,244 +1,183 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-    />
-    <title>M-Shop Service Pro Cloud</title>
+<head>
+<meta charset="UTF-8" />
+<title>M-Shop-Check</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- Vue 3 -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
-    <!-- Firebase -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import {
-        getDatabase,
-        ref,
-        set,
-        onValue,
-        push,
-        remove,
-        update,
-      } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-      const firebaseConfig = {
-        /* 🔴 ใช้ config เดิมของคุณ */
-      };
+<style>
+body {
+    font-family: system-ui, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+}
+header {
+    background: #ff6f00;
+    color: #fff;
+    padding: 12px 16px;
+    font-size: 18px;
+}
+.container {
+    padding: 16px;
+}
+input, button {
+    padding: 8px;
+    margin: 4px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+th {
+    background: #eee;
+}
+button {
+    cursor: pointer;
+}
+.danger {
+    background: #e53935;
+    color: #fff;
+    border: none;
+}
+.success {
+    background: #43a047;
+    color: #fff;
+    border: none;
+}
+</style>
+</head>
 
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
+<body>
+<header>📦 M-Shop-Check</header>
 
-      window.FDB = {
-        db,
-        ref,
-        set,
-        onValue,
-        push,
-        remove,
-        update,
-      };
-    </script>
-  </head>
+<div id="app" class="container" v-if="ready">
+    <h3>👤 ผู้ใช้งาน</h3>
 
-  <body class="bg-slate-100">
-    <div id="app">
-      <!-- 🔵 UI ของคุณเหมือนเดิมทั้งหมด -->
-    </div>
+    <input v-model="userForm.code" placeholder="รหัสพนักงาน">
+    <input v-model="userForm.name" placeholder="ชื่อพนักงาน">
+    <br>
+    <button class="success" @click="addUser">➕ เพิ่ม / แก้ไข</button>
 
-    <!-- ================== VUE APP ================== -->
-    <script>
-      const { createApp } = Vue;
+    <table>
+        <thead>
+            <tr>
+                <th>รหัส</th>
+                <th>ชื่อ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(u, code) in users" :key="code">
+                <td>{{ code }}</td>
+                <td>{{ u.name }}</td>
+                <td>
+                    <button class="danger" @click="deleteUser(code)">ลบ</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-      createApp({
-        data() {
-          return {
-            isLoggedIn: false,
-            passcode: "",
-            currentUser: null,
-            search: "",
-            activeTab: "prices",
-            editing: false,
-            previewImage: null,
-            userEditing: false,
-            isNewUser: false,
-            oldCode: null,
+<div v-else class="container">
+    ⏳ กำลังโหลดระบบ...
+</div>
 
-            brands: [
-              "iPhone",
-              "Samsung",
-              "Oppo",
-              "Vivo",
-              "Realme",
-              "Redmi",
-              "Xiaomi",
-              "Infinix",
-              "Tecno",
-              "iPad",
-              "อื่นๆ",
-            ],
+<script>
+/* ================= FIREBASE CONFIG ================= */
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "m-shop-check.firebaseapp.com",
+    databaseURL: "https://m-shop-check-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "m-shop-check",
+    storageBucket: "m-shop-check.appspot.com",
+    messagingSenderId: "XXXX",
+    appId: "XXXX"
+};
 
-            userAccounts: {
-              9988: { name: "เจ้าของร้าน", role: "Owner" },
-            },
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-            models: [],
-            logs: [],
+/* expose ให้ Vue ใช้เหมือนเดิม */
+window.FDB = {
+    db,
+    ref: firebase.database().ref,
+    set: (r, v) => r.set(v),
+    remove: (r) => r.remove(),
+    onValue: (r, cb) => r.on("value", cb),
+    push: (r, v) => r.push(v)
+};
 
-            form: {
-              id: Date.now(),
-              brand: "iPhone",
-              model: "",
-              imageUrl: "",
-              screen: { norm: "", gradA: "", orig: "", img: "" },
-              battery: { price: "", img: "" },
-              charge: { price: "", img: "" },
-            },
+/* ================= VUE APP ================= */
+const { createApp } = Vue;
 
-            userForm: { name: "", code: "" },
-          };
+createApp({
+    data() {
+        return {
+            ready: false,
+            users: {},
+            userForm: { code: "", name: "" },
+            currentUser: null
+        };
+    },
+
+    mounted() {
+        this.initCloud();
+    },
+
+    methods: {
+        initCloud() {
+            const { ref, onValue } = window.FDB;
+
+            onValue(ref(db, "users"), snap => {
+                this.users = snap.val() || {};
+                this.ready = true;
+            });
         },
 
-        computed: {
-          filteredModels() {
-            if (!this.search) return this.models;
-            const s = this.search.toLowerCase();
-            return this.models.filter(
-              (m) =>
-                m.brand.toLowerCase().includes(s) ||
-                m.model.toLowerCase().includes(s),
-            );
-          },
+        addUser() {
+            if (!this.userForm.code || !this.userForm.name) {
+                alert("กรอกข้อมูลให้ครบ");
+                return;
+            }
+            const { ref, set } = window.FDB;
+            set(ref(db, "users/" + this.userForm.code), {
+                name: this.userForm.name
+            });
+            this.addLog("Add/Edit user: " + this.userForm.code);
+            this.userForm = { code: "", name: "" };
         },
 
-        mounted() {
-          const wait = setInterval(() => {
-            if (window.FDB) {
-              clearInterval(wait);
-              this.initCloud();
-            }
-          }, 300);
-        },
-
-        methods: {
-          getEmptyForm() {
-            return {
-              id: Date.now(),
-              brand: "iPhone",
-              model: "",
-              imageUrl: "",
-              screen: { norm: "", gradA: "", orig: "", img: "" },
-              battery: { price: "", img: "" },
-              charge: { price: "", img: "" },
-            };
-          },
-
-          initCloud() {
-            const { db, ref, onValue } = window.FDB;
-
-            onValue(ref(db, "models"), (s) => {
-              const d = s.val();
-              this.models = d ? Object.values(d).reverse() : [];
-            });
-
-            onValue(ref(db, "users"), (s) => {
-              const d = s.val() || {};
-              this.userAccounts = {
-                ...d,
-                9988: { name: "เจ้าของร้าน", role: "Owner" },
-              };
-            });
-
-            onValue(ref(db, "logs"), (s) => {
-              const d = s.val();
-              this.logs = d ? Object.values(d).reverse() : [];
-            });
-          },
-
-          login() {
-            const u = this.userAccounts[this.passcode];
-            if (!u) {
-              alert("รหัสไม่ถูกต้อง");
-              this.passcode = "";
-              return;
-            }
-            this.currentUser = { ...u, code: this.passcode };
-            this.isLoggedIn = true;
-            this.passcode = "";
-            this.addLog("Login");
-          },
-
-          logout() {
-            this.isLoggedIn = false;
-            this.currentUser = null;
-          },
-
-          saveData() {
-            if (!this.form.model) {
-              alert("กรุณาระบุชื่อรุ่น");
-              return;
-            }
-            const { db, ref, set } = window.FDB;
-            set(ref(db, "models/" + this.form.id), this.form);
-            this.addLog("Update model: " + this.form.model);
-            this.form = this.getEmptyForm();
-            this.editing = false;
-          },
-
-          deleteModel(id) {
-            if (!confirm("ยืนยันลบ?")) return;
-            const { db, ref, remove } = window.FDB;
-            remove(ref(db, "models/" + id));
-            this.addLog("Delete model: " + id);
-          },
-
-          saveUser() {
-            if (!this.userForm.name || this.userForm.code.length < 4) {
-              alert("ข้อมูลไม่ครบ");
-              return;
-            }
-
-            const { db, ref, update, remove } = window.FDB;
-
-            if (!this.isNewUser && this.oldCode !== this.userForm.code) {
-              remove(ref(db, "users/" + this.oldCode));
-            }
-
-            update(ref(db, "users/" + this.userForm.code), {
-              name: this.userForm.name,
-              role: "Staff",
-            });
-
-            this.addLog("Update user: " + this.userForm.name);
-            this.userEditing = false;
-          },
-
-          deleteUser(code) {
+        deleteUser(code) {
             if (!confirm("ลบพนักงาน?")) return;
-            const { db, ref, remove } = window.FDB;
+            const { ref, remove } = window.FDB;
             remove(ref(db, "users/" + code));
             this.addLog("Delete user: " + code);
-          },
+        },
 
-          addLog(msg) {
-            const { db, ref, push } = window.FDB;
+        addLog(msg) {
+            const { ref, push } = window.FDB;
             const now = new Date();
             push(ref(db, "logs"), {
-              time:
-                now.toLocaleDateString("th-TH") +
-                " " +
-                now.toLocaleTimeString("th-TH", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              user: this.currentUser?.name || "System",
-              action: msg,
+                time: now.toLocaleString("th-TH"),
+                user: this.currentUser?.name || "System",
+                action: msg
             });
-          },
-        },
-      }).mount("#app");
-    </script>
-  </body>
+        }
+    }
+}).mount("#app");
+</script>
+
+</body>
 </html>
