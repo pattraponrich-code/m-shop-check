@@ -9,7 +9,6 @@
     <title>M-Shop Service Pro Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
       import {
@@ -21,7 +20,6 @@
         remove,
         update,
       } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
       const firebaseConfig = {
         apiKey: "AIzaSyC2GY0WqYIS9tjm1-vRomQSrZMtPpMkCdk",
         authDomain: "m-shop-check.firebaseapp.com",
@@ -32,149 +30,168 @@
         messagingSenderId: "1091003324370",
         appId: "1:1091003324370:web:8bc61e01ce218ca8045a0b",
       };
-
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
-      // ส่งตัวแปรไปให้ Vue ใช้งาน
       window.FDB = { db, ref, set, onValue, push, remove, update };
     </script>
-
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
     <style>
+      * {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
       body {
-        font-family: "Kanit", sans-serif;
-        background-color: #f8fafc;
+        /* สีพื้นหลังหลักของ App */
+        background-color: #f1f5f9; 
         -webkit-tap-highlight-color: transparent;
+        letter-spacing: -0.01em;
       }
       .btn-press {
-        transition: transform 0.1s;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         border: none;
         outline: none;
       }
       .btn-press:active {
-        transform: scale(0.92);
-        filter: brightness(0.9);
+        transform: scale(0.96);
       }
       .item-card {
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-radius: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s ease;
+      }
+      .item-card:hover {
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
       }
       .slide-up-enter-active,
       .slide-up-leave-active {
-        transition: transform 0.3s ease-out;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .slide-up-enter-from,
       .slide-up-leave-to {
         transform: translateY(100%);
       }
-      input:focus {
-        ring: 3px solid #3b82f6;
-        border-color: transparent;
-      }
       .custom-scroll::-webkit-scrollbar {
         width: 0px;
+      }
+      /* Glassmorphism Header */
+      .glass {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
     </style>
   </head>
   <body>
     <div
       id="app"
-      class="max-w-md mx-auto min-h-screen bg-slate-50 relative flex flex-col shadow-2xl overflow-hidden"
+      class="max-w-md mx-auto min-h-screen relative flex flex-col shadow-2xl overflow-hidden bg-white"
     >
+      <!-- LOGIN SCREEN (Blue & Yellow Theme) -->
       <div
         v-if="!isLoggedIn"
-        class="p-8 flex flex-col items-center justify-center flex-grow bg-blue-700 text-white transition-all"
+        class="p-8 flex flex-col items-center justify-center flex-grow bg-blue-700 text-white transition-all relative overflow-hidden"
       >
+        <!-- Background Decor -->
+        <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div class="absolute -top-20 -right-20 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-60 h-60 bg-blue-400 rounded-full blur-3xl"></div>
+        </div>
         <div class="z-10 w-full text-center">
           <div
-            class="w-24 h-24 bg-white text-blue-700 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-4 shadow-2xl rotate-3"
+            class="w-28 h-28 bg-white text-blue-700 rounded-3xl flex items-center justify-center text-5xl mx-auto mb-6 shadow-2xl rotate-3 border-4 border-blue-100"
           >
             <i class="fas fa-tools"></i>
           </div>
-          <h1 class="text-4xl font-black mb-1 italic">M-SHOP</h1>
-          <p
-            class="text-blue-200 text-sm tracking-widest uppercase mb-10 font-light"
-          >
+          <h1 class="text-5xl font-black mb-2 tracking-tight italic">M-SHOP</h1>
+          <p class="text-blue-100 text-sm tracking-[0.2em] uppercase mb-12 font-semibold">
             Service Price List
           </p>
-          <div class="space-y-4">
+          <div class="space-y-5">
             <input
               type="password"
               v-model="passcode"
               placeholder="รหัสผ่าน 4 หลัก"
-              class="w-full p-5 rounded-2xl text-center text-3xl font-black text-blue-900 shadow-lg outline-none border-4 border-transparent focus:border-yellow-400 transition-all"
+              class="w-full p-5 rounded-2xl text-center text-3xl font-black text-blue-900 shadow-xl outline-none border-4 border-white/20 focus:border-yellow-400 transition-all bg-white/10 backdrop-blur placeholder:text-blue-200 text-white"
             />
             <button
               @click="login"
-              class="btn-press w-full bg-yellow-400 text-blue-900 p-4 rounded-2xl font-black text-xl shadow-lg"
+              class="btn-press w-full bg-yellow-400 text-blue-900 p-5 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:bg-yellow-300 transition-colors uppercase tracking-wide"
             >
               เข้าสู่ระบบ
             </button>
           </div>
         </div>
       </div>
-
+      <!-- MAIN APP -->
       <div
         v-else
-        class="flex flex-col flex-grow"
+        class="flex flex-col flex-grow bg-slate-50"
         :class="currentUser.role === 'Owner' ? 'pb-24' : 'pb-6'"
       >
+        <!-- HEADER -->
         <header
-          class="bg-blue-700 text-white pt-8 pb-6 px-6 rounded-b-[2.5rem] shadow-xl sticky top-0 z-30"
+          class="glass pt-8 pb-6 px-6 rounded-b-[2rem] shadow-lg sticky top-0 z-30 border-b border-slate-100/80"
         >
-          <div class="flex justify-between items-start mb-4">
+          <div class="flex justify-between items-start mb-5">
             <div>
-              <h1 class="text-2xl font-black">
+              <h1 class="text-2xl font-black text-slate-800 tracking-tight">
                 {{ activeTab === 'prices' ? 'เช็คราคาอะไหล่' : (activeTab ===
                 'users' ? 'จัดการพนักงาน' : 'ประวัติการใช้งาน') }}
               </h1>
-              <p class="text-blue-100 text-xs mt-1">
-                <span class="bg-blue-800/50 px-2 py-1 rounded-lg">
-                  <i
-                    class="fas fa-circle text-green-400 text-[8px] mr-1 animate-pulse"
-                  ></i>
-                  {{ currentUser.name }}
+              <p class="text-slate-500 text-sm mt-1.5 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse ring-4 ring-green-100"></span>
+                <span class="font-bold text-slate-700">{{ currentUser.name }}</span>
+                <span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-bold uppercase tracking-wide">
+                  {{ currentUser.role }}
                 </span>
               </p>
             </div>
             <button
               @click="logout"
-              class="btn-press bg-red-500/20 text-white p-3 rounded-xl border border-white/10"
+              class="btn-press bg-red-50 text-red-500 p-3 rounded-xl hover:bg-red-100 transition-colors border border-red-100"
             >
               <i class="fas fa-power-off"></i>
             </button>
           </div>
-
-          <div v-if="activeTab === 'prices'" class="relative mt-2">
-            <i class="fas fa-search absolute left-4 top-4 text-blue-300"></i>
+          <!-- SEARCH BAR (High Contrast) -->
+          <div v-if="activeTab === 'prices'" class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-blue-600 text-lg"></i>
+            </div>
             <input
               type="text"
               v-model="search"
-              placeholder="พิมพ์ชื่อรุ่นที่ต้องการค้นหา..."
-              class="w-full bg-white text-slate-800 p-4 pl-12 rounded-2xl font-bold shadow-inner outline-none focus:ring-4 focus:ring-yellow-400 transition-all"
+              placeholder="ค้นหารุ่นที่ต้องการ..."
+              class="w-full bg-slate-50 text-slate-900 p-4 pl-12 pr-4 rounded-xl font-bold shadow-sm outline-none border-2 border-slate-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 transition-all text-base placeholder:text-slate-400"
             />
           </div>
         </header>
-
+        <!-- CONTENT -->
         <main class="flex-grow p-4 space-y-5 overflow-y-auto custom-scroll">
-          <div v-if="activeTab === 'prices'" class="space-y-6">
+          <!-- PRICES TAB -->
+          <div v-if="activeTab === 'prices'" class="space-y-4">
             <div
               v-if="filteredModels.length === 0"
               class="text-center py-20 text-slate-300"
             >
-              <i class="fas fa-search text-5xl mb-3"></i>
-              <p>ไม่พบข้อมูลรายการที่ค้นหา</p>
+              <i class="fas fa-search text-6xl mb-4 text-slate-200"></i>
+              <p class="text-base font-medium text-slate-400">ไม่พบข้อมูลรายการที่ค้นหา</p>
             </div>
-
             <div
-              v-for="(item, idx) in filteredModels"
+              v-for="item in filteredModels"
               :key="item.id"
               class="item-card bg-white overflow-hidden border border-slate-100"
             >
@@ -186,359 +203,428 @@
                 />
                 <div
                   v-else
-                  class="w-full h-24 bg-slate-100 flex items-center justify-center text-slate-300 font-bold italic text-sm"
+                  class="w-full h-32 bg-slate-100 flex items-center justify-center text-slate-300 font-semibold text-sm"
                 >
-                  ไม่มีรูปเครื่อง
+                  <i class="fas fa-mobile-alt text-3xl"></i>
                 </div>
+                <!-- Gradient Overlay -->
                 <div
-                  class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 to-transparent p-4"
+                  class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent p-4 pt-12"
                 >
-                  <h3 class="text-white font-bold text-xl">
+                  <h3 class="text-white font-black text-xl tracking-tight leading-tight shadow-black drop-shadow-md">
                     {{ item.brand }} {{ item.model }}
                   </h3>
                 </div>
+                <!-- Edit Buttons -->
                 <div class="absolute top-3 right-3 flex gap-2">
                   <button
                     @click="openEdit(item)"
-                    class="btn-press w-10 h-10 bg-white/90 text-blue-600 rounded-full shadow-lg flex items-center justify-center"
+                    class="btn-press w-9 h-9 bg-white/90 backdrop-blur text-blue-600 rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-105"
                   >
                     <i class="fas fa-pen text-xs"></i>
                   </button>
                   <button
                     v-if="currentUser.role === 'Owner'"
                     @click="deleteModel(item.id)"
-                    class="btn-press w-10 h-10 bg-white/90 text-red-500 rounded-full shadow-lg flex items-center justify-center"
+                    class="btn-press w-9 h-9 bg-white/90 backdrop-blur text-red-500 rounded-full shadow-lg flex items-center justify-center hover:bg-white hover:scale-105"
                   >
                     <i class="fas fa-trash text-xs"></i>
                   </button>
                 </div>
               </div>
-
-              <div class="p-4 space-y-4">
-                <div
-                  class="bg-blue-50/50 rounded-2xl p-3 border border-blue-100"
-                >
-                  <div class="flex justify-between items-center mb-2">
-                    <span class="text-[10px] font-black text-blue-600 uppercase"
-                      >ราคาเปลี่ยนจอ</span
-                    >
+              <!-- Content Body -->
+              <div class="p-4 space-y-3">
+                <div class="bg-blue-50/60 rounded-xl p-3 border border-blue-100">
+                  <div class="flex justify-between items-center mb-2.5">
+                    <span class="text-[11px] font-black text-blue-700 uppercase tracking-wide">ราคาเปลี่ยนจอ</span>
                     <button
                       v-if="item.screen.img"
                       @click="showImage(item.screen.img)"
-                      class="btn-press text-[10px] bg-blue-600 text-white px-3 py-1 rounded-full"
+                      class="btn-press text-[10px] bg-blue-600 text-white px-3 py-1 rounded-full font-bold hover:bg-blue-700 shadow-sm"
                     >
-                      ดูรูปอะไหล่
+                      ดูรูป
                     </button>
                   </div>
                   <div class="grid grid-cols-3 gap-2">
-                    <div
-                      class="bg-white p-2 rounded-xl text-center border border-slate-100 shadow-sm"
-                    >
-                      <p class="text-[9px] text-slate-400 font-bold">ทั่วไป</p>
-                      <p class="text-sm font-black">
-                        ฿{{ item.screen.norm || '-' }}
-                      </p>
+                    <div class="bg-white p-2.5 rounded-lg text-center border border-slate-100 shadow-sm">
+                      <p class="text-[9px] text-slate-400 font-bold mb-0.5">ทั่วไป</p>
+                      <p class="text-sm font-black text-slate-700">฿{{ item.screen.norm || '-' }}</p>
                     </div>
-                    <div
-                      class="bg-white p-2 rounded-xl text-center border border-blue-100 shadow-sm"
-                    >
-                      <p class="text-[9px] text-blue-500 font-bold">เกรด A</p>
-                      <p class="text-sm font-black text-blue-600">
-                        ฿{{ item.screen.gradA || '-' }}
-                      </p>
+                    <div class="bg-white p-2.5 rounded-lg text-center border border-blue-100 shadow-sm ring-1 ring-blue-50">
+                      <p class="text-[9px] text-blue-600 font-bold mb-0.5">เกรด A</p>
+                      <p class="text-sm font-black text-blue-600">฿{{ item.screen.gradA || '-' }}</p>
                     </div>
-                    <div
-                      class="bg-white p-2 rounded-xl text-center border border-green-100 shadow-sm"
-                    >
-                      <p class="text-[9px] text-green-600 font-bold">แท้</p>
-                      <p class="text-sm font-black text-green-600">
-                        ฿{{ item.screen.orig || '-' }}
-                      </p>
+                    <div class="bg-white p-2.5 rounded-lg text-center border border-green-100 shadow-sm ring-1 ring-green-50">
+                      <p class="text-[9px] text-green-600 font-bold mb-0.5">แท้</p>
+                      <p class="text-sm font-black text-green-600">฿{{ item.screen.orig || '-' }}</p>
                     </div>
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div
-                    class="bg-slate-50 p-3 rounded-2xl flex items-center justify-between border"
-                  >
-                    <div class="flex items-center gap-2">
-                      <i class="fas fa-battery-full text-green-500"></i>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div class="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/60">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                          <i class="fas fa-battery-full text-xs"></i>
+                      </div>
                       <div>
-                        <p class="text-[9px] font-bold text-slate-400">
-                          แบตเตอรี่
-                        </p>
-                        <p class="font-black text-sm">
-                          ฿{{ item.battery.price || '-' }}
-                        </p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">แบตเตอรี่</p>
+                        <p class="font-black text-sm text-slate-800">฿{{ item.battery.price || '-' }}</p>
                       </div>
                     </div>
                     <img
                       v-if="item.battery.img"
                       @click="showImage(item.battery.img)"
                       :src="item.battery.img"
-                      class="w-8 h-8 rounded object-cover border"
+                      class="w-8 h-8 rounded-lg object-cover border border-slate-200 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
                     />
                   </div>
-                  <div
-                    class="bg-slate-50 p-3 rounded-2xl flex items-center justify-between border"
-                  >
-                    <div class="flex items-center gap-2">
-                      <i class="fas fa-bolt text-orange-500"></i>
+                  <div class="bg-slate-50 p-3 rounded-xl flex items-center justify-between border border-slate-200/60">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                          <i class="fas fa-bolt text-xs"></i>
+                      </div>
                       <div>
-                        <p class="text-[9px] font-bold text-slate-400">
-                          ก้นชาร์จ
-                        </p>
-                        <p class="font-black text-sm">
-                          ฿{{ item.charge.price || '-' }}
-                        </p>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase">ก้นชาร์จ</p>
+                        <p class="font-black text-sm text-slate-800">฿{{ item.charge.price || '-' }}</p>
                       </div>
                     </div>
                     <img
                       v-if="item.charge.img"
                       @click="showImage(item.charge.img)"
                       :src="item.charge.img"
-                      class="w-8 h-8 rounded object-cover border"
+                      class="w-8 h-8 rounded-lg object-cover border border-slate-200 cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
                     />
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
+          <!-- USERS TAB -->
           <div
             v-if="activeTab === 'users' && currentUser.role === 'Owner'"
             class="space-y-4"
           >
             <button
               @click="openAddUser"
-              class="btn-press w-full bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg"
+              class="btn-press w-full bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
             >
-              + เพิ่มพนักงาน
+              <i class="fas fa-plus bg-white/20 p-1 rounded-full text-xs"></i> เพิ่มพนักงาน
             </button>
             <div
               v-for="(u, code) in userAccounts"
               :key="code"
-              class="bg-white p-4 rounded-2xl shadow-sm border flex items-center justify-between"
+              class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between"
             >
               <div class="flex items-center gap-3">
                 <div
-                  class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center font-bold text-blue-600"
+                  class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-black text-blue-600 text-lg border border-slate-100"
                 >
                   {{ u.name.charAt(0) }}
                 </div>
                 <div>
-                  <h4 class="font-bold">{{ u.name }}</h4>
-                  <p class="text-xs text-slate-400">Code: <b>{{ code }}</b></p>
+                  <h4 class="font-bold text-slate-800 text-lg">{{ u.name }}</h4>
+                  <div class="flex items-center gap-2">
+                      <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-mono font-bold">{{ code }}</span>
+                  </div>
                 </div>
               </div>
               <div v-if="code !== '9988'" class="flex gap-2">
                 <button
                   @click="editUser(code, u)"
-                  class="btn-press p-2 text-blue-500 bg-blue-50 rounded-lg"
+                  class="btn-press p-2.5 text-blue-600 bg-blue-50 rounded-lg border border-blue-100"
                 >
                   <i class="fas fa-cog"></i>
                 </button>
                 <button
                   @click="deleteUser(code)"
-                  class="btn-press p-2 text-red-500 bg-red-50 rounded-lg"
+                  class="btn-press p-2.5 text-red-500 bg-red-50 rounded-lg border border-red-100"
                 >
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
             </div>
           </div>
-
+          <!-- LOGS TAB -->
           <div
             v-if="activeTab === 'logs' && currentUser.role === 'Owner'"
-            class="space-y-2"
+            class="space-y-3"
           >
             <div
-              v-for="log in logs"
-              class="bg-white p-3 rounded-xl text-[11px] border-l-4 border-blue-500 shadow-sm"
+              v-for="(log, idx) in logs"
+              :key="idx"
+              class="bg-white p-4 rounded-xl border-l-[6px] border-blue-500 shadow-sm relative pr-10"
             >
-              <div class="flex justify-between font-bold text-blue-600 mb-1">
-                <span>{{ log.user }}</span
-                ><span class="text-slate-400">{{ log.time }}</span>
+              <div class="flex justify-between font-bold text-slate-800 mb-1">
+                <span class="flex items-center gap-2">
+                    <i class="fas fa-user-circle text-blue-500"></i> {{ log.user }}
+                </span>
+                <span class="text-slate-400 text-xs font-medium bg-slate-50 px-2 py-1 rounded-full">{{ log.time }}</span>
               </div>
-              <div class="text-slate-700">{{ log.action }}</div>
+              <div class="text-slate-600 text-sm pl-6 border-l border-slate-100 ml-1.5 py-1">{{ log.action }}</div>
+              
+              <!-- ลบ log -->
+              <button
+                @click="deleteLog(idx)"
+                class="btn-press absolute right-3 top-3 w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           </div>
         </main>
-
+        <!-- FLOATING BUTTONS -->
+        <!-- Import (Owner) -->
+        <button
+          v-if="activeTab === 'prices' && currentUser.role === 'Owner'"
+          @click="showImportModal = true"
+          class="btn-press fixed w-14 h-14 bg-white text-blue-700 rounded-2xl shadow-xl flex items-center justify-center text-xl z-40 left-6 border-2 border-blue-50"
+          :class="currentUser.role === 'Owner' ? 'bottom-24' : 'bottom-8'"
+        >
+          <i class="fas fa-file-import"></i>
+        </button>
+        <!-- ADD (+) -->
         <button
           v-if="activeTab === 'prices'"
           @click="openAdd"
-          class="btn-press fixed w-16 h-16 bg-blue-600 text-white rounded-2xl shadow-xl flex items-center justify-center text-2xl z-40 right-6"
+          class="btn-press fixed w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-600/30 flex items-center justify-center text-2xl z-40 right-6"
           :class="currentUser.role === 'Owner' ? 'bottom-24' : 'bottom-8'"
         >
           <i class="fas fa-plus"></i>
         </button>
-
+        <!-- BOTTOM NAVIGATION -->
         <nav
           v-if="currentUser.role === 'Owner'"
-          class="fixed bottom-0 left-0 w-full bg-white border-t px-6 py-2 flex justify-between shadow-2xl z-50 rounded-t-3xl"
+          class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 px-8 py-3 flex justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 rounded-t-3xl"
         >
           <button
             v-for="t in tabs"
             @click="activeTab = t.id"
-            :class="activeTab === t.id ? 'text-blue-600' : 'text-slate-300'"
-            class="p-2 flex flex-col items-center"
+            :class="activeTab === t.id ? 'text-blue-600 bg-blue-50' : 'text-slate-300 hover:text-slate-400'"
+            class="p-3 w-16 h-16 rounded-2xl flex flex-col items-center justify-center transition-all duration-300"
           >
-            <i :class="t.icon" class="text-xl mb-1"></i>
-            <span class="text-[10px] font-bold uppercase">{{ t.label }}</span>
+            <i :class="t.icon" class="text-xl mb-1" :class="activeTab === t.id ? 'scale-110' : ''"></i>
+            <span v-if="activeTab === t.id" class="text-[9px] font-black uppercase tracking-wide slide-up-enter-active">
+                {{ t.label }}
+            </span>
           </button>
         </nav>
       </div>
-
+      <!-- IMPORT MODAL -->
+      <transition name="slide-up">
+        <div
+          v-if="showImportModal"
+          class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-6"
+        >
+          <div class="bg-white w-full max-w-sm rounded-[2rem] p-6 shadow-2xl space-y-6">
+            <div class="text-center">
+              <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-blue-100">
+                <i class="fas fa-file-csv"></i>
+              </div>
+              <h2 class="text-xl font-black text-slate-800">นำเข้าจาก Sheet</h2>
+              <p class="text-sm text-slate-500 mt-2 px-4">สร้างลิงก์ CSV จาก Google Sheet แล้วนำมาวางที่นี่</p>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-2xl text-xs space-y-2 text-slate-600 border border-slate-200">
+              <p class="font-bold text-slate-700 uppercase tracking-wide text-[10px]">How to:</p>
+              <ol class="list-decimal pl-4 space-y-1.5 font-medium">
+                <li>เปิด Google Sheet</li>
+                <li>ไปที่ <b>File</b> → <b>Share</b> → <b>Publish to web</b></li>
+                <li>เลือก <b>Entire Document</b> และ <b>CSV</b></li>
+                <li>คัดลอกลิงก์ที่ได้มาวางด้านล่าง</li>
+              </ol>
+            </div>
+            <input
+              v-model="importUrl"
+              placeholder="วางลิงก์ CSV ที่นี่..."
+              class="w-full p-4 rounded-xl text-sm font-mono bg-white border-2 border-slate-200 outline-none focus:border-blue-500 transition-colors"
+            />
+            <div class="flex gap-3">
+              <button
+                @click="showImportModal = false"
+                class="flex-1 bg-slate-100 text-slate-700 p-4 rounded-xl font-bold hover:bg-slate-200 transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                @click="processImport"
+                :disabled="!importUrl"
+                class="flex-1 bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all disabled:opacity-50 disabled:shadow-none"
+              >
+                ตรวจสอบ
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
+      <!-- EDIT FORM MODAL -->
       <transition name="slide-up">
         <div
           v-if="editing"
           class="fixed inset-0 bg-white z-[100] flex flex-col"
         >
-          <div
-            class="bg-blue-700 text-white p-5 flex justify-between items-center shadow-lg"
-          >
-            <h2 class="text-xl font-bold">
-              {{ isNew ? 'เพิ่มรายการใหม่' : 'แก้ไขข้อมูล' }}
-            </h2>
-            <button @click="editing = false" class="text-2xl">
+          <div class="bg-blue-700 text-white p-5 flex justify-between items-center shadow-lg pt-8 rounded-b-3xl z-10">
+            <div>
+                 <p class="text-blue-200 text-xs font-bold uppercase tracking-wider mb-1">{{ isNew ? 'CREATE NEW' : 'EDIT ITEM' }}</p>
+                 <h2 class="text-2xl font-black">{{ isNew ? 'เพิ่มรายการใหม่' : 'แก้ไขข้อมูล' }}</h2>
+            </div>
+            <button @click="editing = false" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors">
               <i class="fas fa-times"></i>
             </button>
           </div>
-          <div
-            class="flex-grow overflow-y-auto p-6 space-y-6 bg-slate-50 pb-20"
-          >
-            <div class="bg-white p-4 rounded-2xl shadow-sm space-y-4 border">
-              <div class="flex gap-2">
-                <select
-                  v-model="form.brand"
-                  class="w-1/3 p-4 rounded-xl bg-slate-50 font-bold border-none outline-none"
-                >
-                  <option v-for="b in brands" :value="b">{{b}}</option>
-                </select>
+          <div class="flex-grow overflow-y-auto p-6 space-y-6 bg-slate-50 pb-24">
+            
+            <!-- Main Info -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4 border border-slate-100">
+              <p class="text-xs font-black text-slate-400 uppercase tracking-wide">ข้อมูลเครื่อง</p>
+              <div class="flex gap-3">
+                <div class="w-1/3 relative">
+                     <select
+                      v-model="form.brand"
+                      class="w-full h-full p-4 rounded-xl bg-slate-50 font-bold border-2 border-slate-100 outline-none appearance-none focus:border-blue-500"
+                    >
+                      <option v-for="b in brands" :value="b">{{b}}</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                </div>
                 <input
                   v-model="form.model"
-                  placeholder="ชื่อรุ่น"
-                  class="w-2/3 p-4 rounded-xl bg-slate-50 font-bold outline-none"
+                  placeholder="ชื่อรุ่น (เช่น 14 Pro Max)"
+                  class="w-2/3 p-4 rounded-xl bg-slate-50 font-bold outline-none border-2 border-slate-100 focus:border-blue-500 placeholder:font-normal"
                 />
               </div>
-              <input
-                v-model="form.imageUrl"
-                placeholder="URL รูปตัวเครื่อง"
-                class="w-full p-3 bg-slate-50 rounded-xl text-xs outline-none"
-              />
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm space-y-4 border">
-              <p class="font-bold text-blue-600 text-xs uppercase">
-                ราคาจอ & รูปจอ
-              </p>
-              <div class="grid grid-cols-3 gap-2">
-                <input
-                  type="number"
-                  v-model="form.screen.norm"
-                  placeholder="ทั่วไป"
-                  class="p-3 bg-slate-50 rounded-xl text-center font-bold"
-                />
-                <input
-                  type="number"
-                  v-model="form.screen.gradA"
-                  placeholder="เกรด A"
-                  class="p-3 bg-blue-50 rounded-xl text-center font-bold text-blue-600"
-                />
-                <input
-                  type="number"
-                  v-model="form.screen.orig"
-                  placeholder="แท้"
-                  class="p-3 bg-green-50 rounded-xl text-center font-bold text-green-600"
-                />
+              <div class="relative">
+                  <i class="fas fa-link absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                  <input
+                    v-model="form.imageUrl"
+                    placeholder="URL รูปตัวเครื่อง"
+                    class="w-full p-3 pl-10 bg-slate-50 rounded-xl text-sm outline-none border-2 border-slate-100 focus:border-blue-500 font-mono"
+                  />
               </div>
-              <input
-                v-model="form.screen.img"
-                placeholder="URL รูปอะไหล่จอ"
-                class="w-full p-3 bg-slate-50 rounded-xl text-xs outline-none"
-              />
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm space-y-4 border">
-              <p class="font-bold text-slate-500 text-xs uppercase">
-                แบตเตอรี่ & ก้นชาร์จ
-              </p>
+            <!-- Screen Price -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4 border border-slate-100">
+              <div class="flex justify-between items-center">
+                  <p class="text-xs font-black text-blue-600 uppercase tracking-wide">ราคาจอ & รูปจอ</p>
+                  <i class="fas fa-mobile text-blue-200"></i>
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="space-y-1">
+                    <label class="text-[10px] text-slate-400 font-bold block text-center">ทั่วไป</label>
+                    <input type="number" v-model="form.screen.norm" class="w-full p-3 bg-slate-50 rounded-xl text-center font-bold border-2 border-slate-100 focus:border-blue-500 outline-none" placeholder="-">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] text-blue-400 font-bold block text-center">เกรด A</label>
+                    <input type="number" v-model="form.screen.gradA" class="w-full p-3 bg-blue-50 rounded-xl text-center font-bold text-blue-600 border-2 border-blue-100 focus:border-blue-500 outline-none" placeholder="-">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] text-green-400 font-bold block text-center">แท้</label>
+                    <input type="number" v-model="form.screen.orig" class="w-full p-3 bg-green-50 rounded-xl text-center font-bold text-green-600 border-2 border-green-100 focus:border-green-500 outline-none" placeholder="-">
+                </div>
+              </div>
+              <div class="relative">
+                  <i class="fas fa-image absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                  <input
+                    v-model="form.screen.img"
+                    placeholder="URL รูปอะไหล่จอ"
+                    class="w-full p-3 pl-10 bg-slate-50 rounded-xl text-sm outline-none border-2 border-slate-100 focus:border-blue-500 font-mono"
+                  />
+              </div>
+            </div>
+            <!-- Battery & Charge -->
+            <div class="bg-white p-5 rounded-2xl shadow-sm space-y-4 border border-slate-100">
+              <p class="text-xs font-black text-slate-400 uppercase tracking-wide">อื่นๆ</p>
               <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
+                <div class="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div class="flex items-center gap-2 mb-1">
+                      <i class="fas fa-battery-full text-green-500"></i>
+                      <span class="text-xs font-bold text-slate-600">แบตเตอรี่</span>
+                  </div>
                   <input
                     type="number"
                     v-model="form.battery.price"
-                    placeholder="ราคาแบต"
-                    class="w-full p-3 bg-slate-50 rounded-xl font-bold text-center"
-                  /><input
+                    placeholder="ราคา"
+                    class="w-full p-2 bg-white rounded-lg font-bold text-center border focus:border-blue-500 outline-none"
+                  />
+                  <input
                     v-model="form.battery.img"
-                    placeholder="URL รูปแบต"
-                    class="w-full p-2 bg-slate-50 rounded-lg text-[9px] outline-none"
+                    placeholder="URL รูป"
+                    class="w-full p-2 bg-white rounded-lg text-xs outline-none border focus:border-blue-500"
                   />
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                  <div class="flex items-center gap-2 mb-1">
+                      <i class="fas fa-bolt text-orange-500"></i>
+                      <span class="text-xs font-bold text-slate-600">ก้นชาร์จ</span>
+                  </div>
                   <input
                     type="number"
                     v-model="form.charge.price"
-                    placeholder="ราคาก้นชาร์จ"
-                    class="w-full p-3 bg-slate-50 rounded-xl font-bold text-center"
-                  /><input
+                    placeholder="ราคา"
+                    class="w-full p-2 bg-white rounded-lg font-bold text-center border focus:border-blue-500 outline-none"
+                  />
+                  <input
                     v-model="form.charge.img"
-                    placeholder="URL รูปชาร์จ"
-                    class="w-full p-2 bg-slate-50 rounded-lg text-[9px] outline-none"
+                    placeholder="URL รูป"
+                    class="w-full p-2 bg-white rounded-lg text-xs outline-none border focus:border-blue-500"
                   />
                 </div>
               </div>
             </div>
             <button
               @click="saveData"
-              class="btn-press w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-xl shadow-xl italic uppercase tracking-widest"
+              class="btn-press w-full bg-blue-600 text-white p-5 rounded-2xl font-black text-xl shadow-xl shadow-blue-200 uppercase tracking-widest hover:bg-blue-700"
             >
-              Update Cloud
+              บันทึกข้อมูล
             </button>
           </div>
         </div>
       </transition>
-
+      <!-- STAFF EDIT MODAL -->
       <transition name="slide-up">
         <div
           v-if="userEditing"
-          class="fixed inset-0 bg-black/60 z-[150] flex items-center justify-center p-6"
+          class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-6"
         >
-          <div class="bg-white w-full rounded-3xl p-6 shadow-2xl space-y-5">
-            <h2 class="text-xl font-black text-center italic uppercase">
-              Staff Management
+          <div class="bg-white w-full rounded-2xl p-6 shadow-2xl space-y-5">
+            <h2 class="text-xl font-black text-center text-slate-800 uppercase tracking-wide">
+              Staff Team
             </h2>
             <div class="space-y-4">
-              <input
-                v-model="userForm.name"
-                placeholder="ชื่อพนักงาน"
-                class="w-full bg-slate-100 p-4 rounded-2xl font-bold outline-none"
-              />
-              <input
-                v-model="userForm.code"
-                maxlength="4"
-                placeholder="Code 4 หลัก"
-                class="w-full bg-slate-100 p-4 rounded-2xl text-center text-3xl font-black text-blue-600 outline-none"
-              />
+              <div class="space-y-1">
+                  <label class="text-xs font-bold text-slate-400 ml-2">ชื่อพนักงาน</label>
+                  <input
+                    v-model="userForm.name"
+                    placeholder="ระบุชื่อ..."
+                    class="w-full bg-slate-50 p-4 rounded-xl font-bold outline-none border-2 border-slate-100 focus:border-blue-500"
+                  />
+              </div>
+              <div class="space-y-1">
+                  <label class="text-xs font-bold text-slate-400 ml-2">Passcode (4 หลัก)</label>
+                  <input
+                    v-model="userForm.code"
+                    maxlength="4"
+                    placeholder="1234"
+                    class="w-full bg-slate-50 p-4 rounded-xl text-center text-3xl font-black text-blue-600 outline-none border-2 border-slate-100 focus:border-blue-500 tracking-widest"
+                  />
+              </div>
             </div>
-            <div class="flex gap-3">
+            <div class="flex gap-3 pt-2">
               <button
                 @click="userEditing = false"
-                class="flex-1 bg-slate-100 p-4 rounded-2xl font-bold"
+                class="flex-1 bg-slate-100 p-4 rounded-xl font-bold hover:bg-slate-200 text-slate-600"
               >
-                Cancel
+                ยกเลิก
               </button>
               <button
                 @click="saveUser"
-                class="flex-1 bg-blue-600 text-white p-4 rounded-2xl font-bold"
+                class="flex-1 bg-blue-600 text-white p-4 rounded-xl font-bold shadow-lg shadow-blue-200"
               >
-                Save
+                บันทึก
               </button>
             </div>
           </div>
         </div>
       </transition>
-
+      <!-- IMAGE PREVIEW -->
       <div
         v-if="previewImage"
         class="fixed inset-0 bg-black/95 z-[200] flex items-center justify-center p-4"
@@ -546,11 +632,17 @@
       >
         <img
           :src="previewImage"
-          class="max-w-full max-h-[80vh] rounded-lg shadow-2xl"
+          class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl transition-transform duration-300 transform scale-100"
+          @click.stop
         />
+        <button
+          @click="previewImage=null"
+          class="absolute top-6 right-6 w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-2xl flex items-center justify-center hover:bg-white/20"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
       </div>
     </div>
-
     <script>
       const { createApp } = Vue;
       createApp({
@@ -567,18 +659,11 @@
             userEditing: false,
             isNewUser: false,
             oldCode: null,
+            showImportModal: false,
+            importUrl: "",
             brands: [
-              "iPhone",
-              "Samsung",
-              "Oppo",
-              "Vivo",
-              "Realme",
-              "Redmi",
-              "Xiaomi",
-              "infinix",
-              "Tecno",
-              "iPad",
-              "อื่นๆ",
+              "iPhone", "Samsung", "Oppo", "Vivo", "Realme",
+              "Redmi", "Xiaomi", "infinix", "Tecno", "iPad", "อื่นๆ",
             ],
             tabs: [
               { id: "prices", label: "ราคา", icon: "fas fa-tags" },
@@ -604,7 +689,6 @@
           },
         },
         mounted() {
-          // รอจนกว่า Firebase จะพร้อมแล้วค่อยโหลดข้อมูล
           const checkDB = setInterval(() => {
             if (window.FDB) {
               clearInterval(checkDB);
@@ -615,22 +699,19 @@
         methods: {
           initCloud() {
             const { db, ref, onValue } = window.FDB;
-            // โหลดรายการรุ่น
             onValue(ref(db, "models"), (snap) => {
               const data = snap.val();
               this.models = data ? Object.values(data).reverse() : [];
             });
-            // โหลดพนักงาน
             onValue(ref(db, "users"), (snap) => {
               this.userAccounts = {
                 ...snap.val(),
                 9988: { name: "เจ้าของร้าน", role: "Owner" },
               };
             });
-            // โหลด Log
             onValue(ref(db, "logs"), (snap) => {
               const data = snap.val();
-              this.logs = data ? Object.values(data).reverse() : [];
+              this.logs = data ? Object.entries(data).map(([key, val]) => ({ id: key, ...val })).reverse() : [];
             });
           },
           login() {
@@ -657,7 +738,6 @@
           },
           openEdit(item) {
             this.isNew = false;
-            // clone ข้อมูลออกมาเพื่อแก้ไข ไม่ให้กระทบตัวจริงทันที
             this.form = JSON.parse(JSON.stringify(item));
             this.editing = true;
           },
@@ -689,6 +769,14 @@
               this.addLog("Delete model id: " + id);
             }
           },
+          deleteLog(id) {
+            if (confirm("ลบประวัติการใช้งานนี้?")) {
+              const { db, ref, remove } = window.FDB;
+              const logId = this.logs[id].id;
+              remove(ref(db, "logs/" + logId));
+              this.addLog("Delete log entry");
+            }
+          },
           openAddUser() {
             this.isNewUser = true;
             this.userForm = { name: "", code: "" };
@@ -717,6 +805,52 @@
           deleteUser(code) {
             if (confirm("ลบพนักงาน?")) {
               window.FDB.remove(window.FDB.ref(window.FDB.db, "users/" + code));
+            }
+          },
+          async processImport() {
+            if (!this.importUrl) return;
+            try {
+              const res = await fetch(this.importUrl);
+              const csv = await res.text();
+              const lines = csv.split("\n").map(l => l.trim()).filter(l => l);
+              let startIdx = 0;
+              if (lines[0].toLowerCase().includes("brand")) startIdx = 1;
+              let count = 0;
+              for (let i = startIdx; i < lines.length; i++) {
+                const cols = lines[i].split(",").map(c => c.trim().replace(/^"|"$/g, ""));
+                if (cols.length < 2) continue;
+                const [
+                  brand, model, imageUrl,
+                  snorm, sgradA, sorig, simg,
+                  bprice, bimg,
+                  cprice, cimg
+                ] = cols;
+                const id = Date.now() + i;
+                const item = {
+                  id,
+                  brand: brand || "อื่นๆ",
+                  model: model || "Unknown",
+                  imageUrl: imageUrl || "",
+                  screen: {
+                    norm: snorm || "",
+                    gradA: sgradA || "",
+                    orig: sorig || "",
+                    img: simg || ""
+                  },
+                  battery: { price: bprice || "", img: bimg || "" },
+                  charge: { price: cprice || "", img: cimg || "" },
+                };
+                const { db, ref, set } = window.FDB;
+                await set(ref(db, "models/" + item.id), item);
+                count++;
+              }
+              this.addLog(`Imported ${count} items from Sheet`);
+              alert(`นำเข้าเรียบร้อยแล้ว ${count} รายการ`);
+              this.showImportModal = false;
+              this.importUrl = "";
+            } catch (e) {
+              console.error(e);
+              alert("เกิดข้อผิดพลาดในการนำเข้า กรุณาเช็ค URL อีกครั้ง");
             }
           },
           addLog(msg) {
