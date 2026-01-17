@@ -102,6 +102,21 @@
         v-if="!isLoggedIn"
         class="p-8 flex flex-col items-center justify-center flex-grow bg-blue-700 text-white relative overflow-hidden"
       >
+        <!-- Auto-Reload Script -->
+        <script>
+          if (window.location.search !== '?v=3.2') {
+             // Force update parameter
+             // window.location.href = window.location.pathname + '?v=3.2';
+          }
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              for(let registration of registrations) {
+                // Trigger update
+                registration.update();
+              }
+            });
+          }
+        </script>
         <div class="absolute inset-0 bg-blue-600 opacity-50 bg-[radial-gradient(#ffffff33_1px,transparent_1px)] [background-size:16px_16px]"></div>
         <div class="z-10 w-full text-center">
           <div
@@ -126,6 +141,9 @@
             >
               เข้าสู่ระบบ
             </button>
+          </div>
+          <div class="mt-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full inline-block animate-bounce shadow-lg">
+              v3.2 (FINAL FIX)
           </div>
         </div>
       </div>
